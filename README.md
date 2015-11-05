@@ -1,7 +1,7 @@
 # git-add-subtree
 
-### Introduction
-A handy bash script that helps adding a subtree into a git repository :tada : 
+### Description
+A handy bash script that helps adding a subtree into a git repository
 
 ### Usage
 1. `chmod u+x git-add-subtree`
