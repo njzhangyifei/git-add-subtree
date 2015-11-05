@@ -1,0 +1,105 @@
+#!/usr/bin/bash
+
+# By Yifei Zhang, Nov. 5 2015
+# Read LICENSE file before use
+
+# Colors
+ESC_SEQ="\e["
+COL_RESET=$ESC_SEQ"0m"
+COL_RED=$ESC_SEQ"31m"
+COL_GREEN=$ESC_SEQ"32m"
+COL_YELLOW=$ESC_SEQ"33m"
+COL_BLUE=$ESC_SEQ"34m"
+COL_MAGENTA=$ESC_SEQ"35m"
+COL_CYAN=$ESC_SEQ"36m"
+COL_WHITE=$ESC_SEQ"97m"
+
+# warning
+echo -e "WARNING: THE FILE \"fetch_{remote_name}\" WILL BE OVERWRITTEN"
+echo -e "THIS SCRIPT WILL NOT MODIFY OTHER DATA BUT PLEASE USE AT YOUR OWN RISK${COL_RESET}"
+
+# title
+echo
+echo -e "${COL_CYAN}[git_add_subtree  -  Yifei Zhang, Nov 2015]${COL_RESET}"
+echo
+
+# check env
+echo -e -n "${COL_WHITE}Checking conditions......${COL_RESET}"
+if [ -d .git ]; then
+    echo -e "${COL_GREEN}OK!${COL_RESET}"
+else
+    echo -e "${COL_RED}Error!"
+    echo -e "This directory is not a git repo.${COL_RESET}"
+    exit 0
+fi;
+
+echo 
+echo "-----------------------------------------"
+echo "Please enter the prefix for the subtree  "
+echo "    e.g. src/windows/sbn1Project         "
+echo "-----------------------------------------"
+echo -e -n "${COL_BLUE}--prefix=${COL_RESET}"
+read prefix
+echo 
+
+if [[  -d ${prefix} ]]; then
+    echo -e "${COL_RED}Error!"
+    echo -e "This prefix directory already exists.${COL_RESET}"
+    exit 0
+fi;
+    
+
+echo 
+echo "-----------------------------------------"
+echo "Please enter the url for the subtree repo"
+echo "    e.g. https://bit.../.../sth.git      "
+echo "-----------------------------------------"
+echo -e -n "${COL_BLUE}(url=)${COL_RESET}"
+read url
+echo 
+
+echo 
+echo "-----------------------------------------"
+echo "Please enter the branch if you are not on"
+echo "  master (for the subtree)               "
+echo "    e.g. SBN1                            "
+echo "-----------------------------------------"
+echo -e -n "${COL_BLUE}(branch_name=)${COL_RESET}"
+read branch_name
+
+if [[ $branch_name == "" ]]; then
+    branch_name="master"
+fi
+
+echo 
+echo "-----------------------------------------"
+echo "               SUMMARY                   "
+echo "-----------------------------------------"
+echo -e "${COL_BLUE}prefix :${COL_RESET} ${prefix}"
+echo -e "${COL_BLUE}from url :${COL_RESET} ${url}"
+echo -e "${COL_BLUE}branch name:${COL_RESET} ${branch_name}"
+echo
+read -p "Creating subtree? (y/n)" option
+echo
+
+if [[ ! $option =~ [yY](es)* ]]; then
+    exit 0
+fi
+
+
+echo -e "${COL_WHITE}Adding remote...${COL_RESET}"
+remote_name=`basename ${prefix}`
+echo "git remote add -f $remote_name $url"
+git remote add -f $remote_name $url
+echo
+
+echo -e "${COL_WHITE}Adding subtree...${COL_RESET}"
+echo "git subtree add --prefix $prefix $remote_name $branch_name --squash"
+git subtree add --prefix $prefix $remote_name $branch_name --squash
+echo
+
+echo -e "${COL_WHITE}Creating script fetch_${remote_name}...${COL_RESET}"
+echo "#!/usr/bin/bash" > fetch_${remote_name}
+echo "git fetch $remote_name $branch_name" >> fetch_${remote_name}
+echo "git subtree pull --prefix $prefix $remote_name $branch_name --squash" >> fetch_${remote_name}
+chmod +x fetch_${remote_name}
