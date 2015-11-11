@@ -15,7 +15,7 @@ COL_CYAN=$ESC_SEQ"36m"
 COL_WHITE=$ESC_SEQ"97m"
 
 # warning
-echo -e "WARNING: THE FILE \"fetch_{remote_name}\" WILL BE OVERWRITTEN"
+echo -e "${COL_RED}WARNING: THE FILE \"fetch_{remote_name}\" WILL BE OVERWRITTEN"
 echo -e "THIS SCRIPT WILL NOT MODIFY OTHER DATA BUT PLEASE USE AT YOUR OWN RISK${COL_RESET}"
 
 # title
